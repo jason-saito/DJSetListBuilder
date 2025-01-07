@@ -35,5 +35,8 @@ Navigate to the project directory and open SetListBuilderV5.xcodeproj
 Select your target device or simulator.
 Click the Run button in Xcode to build and launch the app.
 
-![image](https://github.com/user-attachments/assets/8f632e3f-7930-4759-95b1-ec3f113c4e86)
+---
+
+## **App Demo**
+![ezgif-6-c247fd250e](https://github.com/user-attachments/assets/9d11a7e5-d43d-4c1a-a4ed-134f1d1d6899)
 
