@@ -39,4 +39,4 @@ Click the Run button in Xcode to build and launch the app.
 
 ## **App Demo**
 ![ezgif-6-c247fd250e](https://github.com/user-attachments/assets/9d11a7e5-d43d-4c1a-a4ed-134f1d1d6899){ .image25percent }
-
+![Image title](https://dummyimage.com/600x400/eee/aaa){ .image25percent }
