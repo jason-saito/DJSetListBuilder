@@ -38,11 +38,4 @@ Click the Run button in Xcode to build and launch the app.
 ---
 
 ## **App Demo**
-![ezgif-6-c247fd250e](https://github.com/user-attachments/assets/9d11a7e5-d43d-4c1a-a4ed-134f1d1d6899){ .image25percent }
-
 <img src = "https://github.com/user-attachments/assets/9d11a7e5-d43d-4c1a-a4ed-134f1d1d6899" width = "400" />
-
-![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png)
-
-Copy <img> in browser DevTools. Replace ![](url) to <img>. Add width(and height) attr.
-<img src="https://camo.githubusercontent.com/..." data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="200" height="400" />
