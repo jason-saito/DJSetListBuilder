@@ -27,3 +27,10 @@ Beginner DJs often struggle with finding new songs, creating setlists, and pract
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/jason-saito/DJSetListBuilder.git 
+
+2. Open in Xcode:
+Navigate to the project directory and open SetListBuilderV5.xcodeproj
+
+3. Build and Run:
+Select your target device or simulator.
+Click the Run button in Xcode to build and launch the app.
