@@ -65,17 +65,22 @@ struct PlaylistView: View {
             
             List {
                 ForEach(playlist.tracks) { track in
-                    HStack {
-                        TrackRow(track: track, isSelected: false)
-                            .frame(maxWidth: .infinity)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if isEditingTracks {
-                                    withAnimation {
-                                        toggleTrackSelection(track.id)
-                                    }
-                                }
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(track.title)
+                                .font(.headline)
+                            Text(track.artist)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            HStack {
+                                Label("\(Int(track.bpm)) BPM", systemImage: "metronome")
+                                Spacer()
+                                Label(track.genre, systemImage: "music.note")
                             }
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
                         
                         if isEditingTracks {
                             Button {
@@ -99,14 +104,24 @@ struct PlaylistView: View {
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    .listRowBackground(
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .background(
                         isEditingTracks && tracksToRemove.contains(track.id) ?
                             Color.red.opacity(0.2) :
                             Color(.systemBackground)
                     )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if isEditingTracks {
+                            withAnimation {
+                                toggleTrackSelection(track.id)
+                            }
+                        }
+                    }
                 }
             }
-            .listStyle(PlainListStyle())
+            .listStyle(.plain)
             
             if isEditingTracks {
                 HStack {
@@ -175,31 +190,6 @@ struct PlaylistView: View {
                         showingAddTracksSheet = false
                     }
                 )
-            }
-        }
-        .toolbar {
-            if !isEditingTracks {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        let updatedSetList = SetList(
-                            id: existingSetList?.id ?? UUID(),
-                            title: editedTitle,
-                            genre: genre,
-                            bpmRange: bpmRange,
-                            tracks: playlist.tracks
-                        )
-                        
-                        if existingSetList != nil {
-                            setListService.updateSetList(updatedSetList)
-                        } else {
-                            setListService.addSetList(updatedSetList)
-                        }
-                        shouldNavigateToHome = true
-                    } label: {
-                        Text("Save")
-                            .bold()
-                    }
-                }
             }
         }
     }

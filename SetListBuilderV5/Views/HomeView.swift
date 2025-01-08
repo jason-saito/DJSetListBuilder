@@ -80,6 +80,9 @@ struct HomeView: View {
                         navigationPath.append(NavigationType.custom)
                     }
                 }
+                .presentationDetents([.medium])
+                .presentationContentInteraction(.scrolls)
+                .presentationBackground(.regularMaterial)
             }
             .navigationDestination(for: NavigationType.self) { type in
                 switch type {
@@ -141,54 +144,57 @@ struct CreateOptionsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Choose Creation Method")
-                .font(.title2)
-                .bold()
-                .padding(.top)
+        ZStack {
+            Color.clear
             
-            HStack(spacing: 15) {
-                Button {
-                    onSelect(.soundCloud)
-                } label: {
-                    VStack {
-                        Image(systemName: "music.note.list")
-                            .font(.system(size: 30))
-                        Text("Create with\nSoundCloud")
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 120)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
+            VStack(spacing: 20) {
+                Text("Choose Creation Method")
+                    .font(.title2)
+                    .bold()
                 
-                Button {
-                    onSelect(.custom)
-                } label: {
-                    VStack {
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 30))
-                        Text("Create with\nCustom Input")
-                            .multilineTextAlignment(.center)
+                HStack(spacing: 15) {
+                    Button {
+                        onSelect(.soundCloud)
+                    } label: {
+                        VStack {
+                            Image(systemName: "music.note.list")
+                                .font(.system(size: 30))
+                            Text("Create with\nSoundCloud")
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 120)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    
+                    Button {
+                        onSelect(.custom)
+                    } label: {
+                        VStack {
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 30))
+                            Text("Create with\nCustom Input")
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
                 }
+                .padding(.horizontal)
+                
+                Button("Cancel") {
+                    dismiss()
+                }
+                .foregroundColor(.red)
             }
-            .padding(.horizontal)
-            
-            Button("Cancel") {
-                dismiss()
-            }
-            .foregroundColor(.red)
-            .padding(.top)
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .presentationDetents([.height(250)])
     }
 }
 

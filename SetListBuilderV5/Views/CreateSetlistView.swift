@@ -29,7 +29,7 @@ struct CreateSetlistView: View {
                 .padding(.top)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Title")
+                Text("Title *")
                     .font(.headline)
                 TextField("Enter title", text: $title)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -104,11 +104,11 @@ struct CreateSetlistView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.blue)
+                    .background(title.isEmpty ? Color.gray : Color.blue)
                     .cornerRadius(10)
                     .padding(.horizontal)
             }
-            .disabled(title.isEmpty || (isCustomGenre && customGenre.isEmpty))
+            .disabled(title.isEmpty)
             .padding(.bottom)
         }
     }

@@ -2,11 +2,13 @@ import SwiftUI
 
 struct SearchView: View {
     @EnvironmentObject private var soundCloudService: SoundCloudService
+    @EnvironmentObject private var setListService: SetListService
     @State private var searchText = ""
     @State private var selectedTracks: [Track]
     @State private var searchResults: [Track] = []
     @State private var isLoading = false
     @State private var error: Error?
+    @State private var shouldNavigateToHome = false
     
     let title: String
     let genre: String
@@ -79,12 +81,17 @@ struct SearchView: View {
                             .padding()
                     }
                 } else {
-                    NavigationLink(destination: PlaylistView(
-                        playlist: Playlist(title: title, tracks: selectedTracks),
-                        title: title,
-                        genre: genre,
-                        bpmRange: bpmRange
-                    )) {
+                    Button {
+                        let setList = SetList(
+                            id: UUID(),
+                            title: title,
+                            genre: genre,
+                            bpmRange: bpmRange,
+                            tracks: selectedTracks
+                        )
+                        setListService.addSetList(setList)
+                        shouldNavigateToHome = true
+                    } label: {
                         Text("Done (\(selectedTracks.count) tracks)")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -98,6 +105,9 @@ struct SearchView: View {
             }
         }
         .navigationTitle("Add Tracks")
+        .navigationDestination(isPresented: $shouldNavigateToHome) {
+            HomeView()
+        }
         .task {
             await search()
         }
@@ -138,31 +148,20 @@ struct TrackRow: View {
     let isSelected: Bool
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(track.title)
-                    .font(.headline)
-                Text(track.artist)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                HStack {
-                    Label("\(Int(track.bpm)) BPM", systemImage: "metronome")
-                    Spacer()
-                    Label(track.genre, systemImage: "music.note")
-                }
-                .font(.caption)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(track.title)
+                .font(.headline)
+            Text(track.artist)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
+            HStack {
+                Label("\(Int(track.bpm)) BPM", systemImage: "metronome")
+                Spacer()
+                Label(track.genre, systemImage: "music.note")
             }
-            
-            Spacer()
-            
-            if isSelected {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.blue)
-                    .font(.title2)
-            }
+            .font(.caption)
+            .foregroundColor(.secondary)
         }
-        .padding(.vertical, 4)
     }
 }
 
@@ -174,5 +173,6 @@ struct TrackRow: View {
             bpmRange: 120...130
         )
         .environmentObject(SoundCloudService())
+        .environmentObject(SetListService())
     }
 } 

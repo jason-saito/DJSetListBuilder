@@ -33,7 +33,7 @@ struct CustomSetlistView: View {
                 .padding(.top)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("Title")
+                Text("Title *")
                     .font(.headline)
                 TextField("Enter title", text: $title)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -95,10 +95,11 @@ struct CustomSetlistView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color.blue)
+                .background(title.isEmpty ? Color.gray : Color.blue)
                 .cornerRadius(10)
                 .padding(.horizontal)
             }
+            .disabled(title.isEmpty)
             
             if !customTracks.isEmpty {
                 Button {
@@ -109,10 +110,11 @@ struct CustomSetlistView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.green)
+                        .background(title.isEmpty ? Color.gray : Color.green)
                         .cornerRadius(10)
                         .padding(.horizontal)
                 }
+                .disabled(title.isEmpty)
             }
         }
         .sheet(isPresented: $showingAddTrack) {
