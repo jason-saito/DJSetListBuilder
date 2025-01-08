@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject private var soundCloudService: SoundCloudService
     @State private var searchText = ""
-    @State private var selectedTracks: [Track] = []
+    @State private var selectedTracks: [Track]
     @State private var searchResults: [Track] = []
     @State private var isLoading = false
     @State private var error: Error?
@@ -11,6 +11,16 @@ struct SearchView: View {
     let title: String
     let genre: String
     let bpmRange: ClosedRange<Double>
+    
+    var onDone: (([Track]) -> Void)?
+    
+    init(title: String, genre: String, bpmRange: ClosedRange<Double>, initialTracks: [Track] = [], onDone: (([Track]) -> Void)? = nil) {
+        self.title = title
+        self.genre = genre
+        self.bpmRange = bpmRange
+        _selectedTracks = State(initialValue: initialTracks)
+        self.onDone = onDone
+    }
     
     var body: some View {
         VStack {
@@ -27,23 +37,21 @@ struct SearchView: View {
             } else {
                 List {
                     ForEach(searchResults) { track in
-                        TrackRow(track: track)
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    if !selectedTracks.contains(where: { $0.id == track.id }) {
-                                        selectedTracks.append(track)
-                                    }
-                                } label: {
-                                    Label("Add", systemImage: "plus.circle")
+                        TrackRow(track: track, isSelected: selectedTracks.contains(where: { $0.id == track.id }))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    toggleTrackSelection(track)
                                 }
-                                .tint(.green)
                             }
-                            .swipeActions(edge: .trailing) {
+                            .contextMenu {
                                 if selectedTracks.contains(where: { $0.id == track.id }) {
                                     Button(role: .destructive) {
-                                        selectedTracks.removeAll { $0.id == track.id }
+                                        withAnimation {
+                                            selectedTracks.removeAll { $0.id == track.id }
+                                        }
                                     } label: {
-                                        Label("Remove", systemImage: "minus.circle")
+                                        Label("Remove from Setlist", systemImage: "minus.circle")
                                     }
                                 }
                             }
@@ -57,20 +65,35 @@ struct SearchView: View {
             }
             
             if !selectedTracks.isEmpty {
-                NavigationLink(destination: PlaylistView(
-                    playlist: Playlist(title: title, tracks: selectedTracks),
-                    title: title,
-                    genre: genre,
-                    bpmRange: bpmRange
-                )) {
-                    Text("Done (\(selectedTracks.count) tracks)")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                        .padding()
+                if let onDone = onDone {
+                    Button {
+                        onDone(selectedTracks)
+                    } label: {
+                        Text("Done (\(selectedTracks.count) tracks)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                            .padding()
+                    }
+                } else {
+                    NavigationLink(destination: PlaylistView(
+                        playlist: Playlist(title: title, tracks: selectedTracks),
+                        title: title,
+                        genre: genre,
+                        bpmRange: bpmRange
+                    )) {
+                        Text("Done (\(selectedTracks.count) tracks)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                            .padding()
+                    }
                 }
             }
         }
@@ -82,6 +105,14 @@ struct SearchView: View {
             Task {
                 await search()
             }
+        }
+    }
+    
+    private func toggleTrackSelection(_ track: Track) {
+        if selectedTracks.contains(where: { $0.id == track.id }) {
+            selectedTracks.removeAll { $0.id == track.id }
+        } else {
+            selectedTracks.append(track)
         }
     }
     
@@ -104,21 +135,32 @@ struct SearchView: View {
 
 struct TrackRow: View {
     let track: Track
+    let isSelected: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(track.title)
-                .font(.headline)
-            Text(track.artist)
-                .font(.subheadline)
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(track.title)
+                    .font(.headline)
+                Text(track.artist)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                HStack {
+                    Label("\(Int(track.bpm)) BPM", systemImage: "metronome")
+                    Spacer()
+                    Label(track.genre, systemImage: "music.note")
+                }
+                .font(.caption)
                 .foregroundColor(.secondary)
-            HStack {
-                Label("\(Int(track.bpm)) BPM", systemImage: "metronome")
-                Spacer()
-                Label(track.genre, systemImage: "music.note")
             }
-            .font(.caption)
-            .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.blue)
+                    .font(.title2)
+            }
         }
         .padding(.vertical, 4)
     }
