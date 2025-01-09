@@ -132,7 +132,8 @@ struct CustomSetlistView: View {
             title: title,
             genre: effectiveGenre,
             bpmRange: bpmRange,
-            tracks: customTracks.map { $0.toTrack() }
+            tracks: customTracks.map { $0.toTrack() },
+            isCustom: true
         )
         setListService.addSetList(setList)
         shouldNavigateToHome = true

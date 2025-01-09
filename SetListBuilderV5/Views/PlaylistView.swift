@@ -28,21 +28,28 @@ struct PlaylistView: View {
     
     var body: some View {
         VStack {
-            if isEditingTitle {
-                TextField("Playlist Title", text: $editedTitle)
-                    .font(.title)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                    .onSubmit {
-                        isEditingTitle = false
-                    }
-            } else {
-                Text(editedTitle)
-                    .font(.title)
-                    .padding()
-                    .onTapGesture {
-                        isEditingTitle = true
-                    }
+            VStack {
+                if isEditingTitle {
+                    TextField("Playlist Title", text: $editedTitle)
+                        .font(.title)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                        .onSubmit {
+                            isEditingTitle = false
+                        }
+                } else {
+                    Text(editedTitle)
+                        .font(.title)
+                        .padding(.top)
+                        .onTapGesture {
+                            isEditingTitle = true
+                        }
+                    
+                    Text("\(playlist.tracks.count) tracks")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding(.bottom)
+                }
             }
             
             if isEditingTracks {
@@ -143,6 +150,17 @@ struct PlaylistView: View {
                     Button {
                         withAnimation {
                             playlist.tracks.removeAll { tracksToRemove.contains($0.id) }
+                            if let existingSetList = existingSetList {
+                                let updatedSetList = SetList(
+                                    id: existingSetList.id,
+                                    title: editedTitle,
+                                    genre: genre,
+                                    bpmRange: bpmRange,
+                                    tracks: playlist.tracks,
+                                    isCustom: existingSetList.isCustom
+                                )
+                                setListService.updateSetList(updatedSetList)
+                            }
                             tracksToRemove.removeAll()
                             isEditingTracks = false
                         }
@@ -180,16 +198,47 @@ struct PlaylistView: View {
         }
         .sheet(isPresented: $showingAddTracksSheet) {
             NavigationStack {
-                SearchView(
-                    title: editedTitle,
-                    genre: genre,
-                    bpmRange: bpmRange,
-                    initialTracks: playlist.tracks,
-                    onDone: { tracks in
-                        playlist.tracks = tracks
+                if existingSetList?.isCustom ?? false {
+                    AddCustomTrackView { track in
+                        let newTrack = track.toTrack()
+                        playlist.tracks.append(newTrack)
+                        
+                        if let existingSetList = existingSetList {
+                            let updatedSetList = SetList(
+                                id: existingSetList.id,
+                                title: editedTitle,
+                                genre: genre,
+                                bpmRange: bpmRange,
+                                tracks: playlist.tracks,
+                                isCustom: true
+                            )
+                            setListService.updateSetList(updatedSetList)
+                        }
                         showingAddTracksSheet = false
                     }
-                )
+                } else {
+                    SearchView(
+                        title: editedTitle,
+                        genre: genre,
+                        bpmRange: bpmRange,
+                        initialTracks: playlist.tracks,
+                        onDone: { tracks in
+                            playlist.tracks = tracks
+                            if let existingSetList = existingSetList {
+                                let updatedSetList = SetList(
+                                    id: existingSetList.id,
+                                    title: editedTitle,
+                                    genre: genre,
+                                    bpmRange: bpmRange,
+                                    tracks: tracks,
+                                    isCustom: existingSetList.isCustom
+                                )
+                                setListService.updateSetList(updatedSetList)
+                            }
+                            showingAddTracksSheet = false
+                        }
+                    )
+                }
             }
         }
     }

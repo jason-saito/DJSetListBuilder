@@ -10,6 +10,20 @@ struct HomeView: View {
         case custom
     }
     
+    private func bpmRangeText(for setList: SetList) -> String {
+        guard !setList.tracks.isEmpty else { return "No tracks" }
+        
+        let bpms = setList.tracks.map { $0.bpm }
+        if let minBPM = bpms.min(), let maxBPM = bpms.max() {
+            if minBPM == maxBPM {
+                return "\(Int(minBPM)) BPM"
+            } else {
+                return "\(Int(minBPM))-\(Int(maxBPM)) BPM"
+            }
+        }
+        return "No BPM data"
+    }
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 20) {
@@ -100,6 +114,26 @@ struct HomeView: View {
 struct SetlistCard: View {
     let setlist: SetList
     
+    private func bpmRangeText() -> String {
+        guard !setlist.tracks.isEmpty else { return "No tracks" }
+        
+        let bpms = setlist.tracks.map { $0.bpm }
+        let nonZeroBpms = bpms.filter { $0 > 0 }
+        
+        if nonZeroBpms.isEmpty {
+            return "0"
+        }
+        
+        let minBPM = bpms.min() ?? 0
+        let maxBPM = bpms.max() ?? 0
+        
+        if minBPM == maxBPM {
+            return "\(Int(minBPM))"
+        } else {
+            return "\(Int(minBPM)) - \(Int(maxBPM))"
+        }
+    }
+    
     var body: some View {
         NavigationLink(destination: PlaylistView(
             playlist: Playlist(title: setlist.title, tracks: setlist.tracks),
@@ -120,7 +154,7 @@ struct SetlistCard: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 
-                Text("BPM: \(Int(setlist.bpmRange.lowerBound))-\(Int(setlist.bpmRange.upperBound))")
+                Text("BPM: \(bpmRangeText())")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
